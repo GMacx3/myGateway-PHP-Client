@@ -7,9 +7,9 @@ use lkdev\myGateway\myGatewayClient as myGatewayClient;
 
 $myGatewayClient = new myGatewayClient();
 try{
-$myGatewayClient->setProjectName("AB");
-$myGatewayClient->setProjectHolder("Lukas Kä");
-$myGatewayClient->setClientToken("jzwvvncp71e77hfldq87wmrjt6zb9ckfeawyv4mn");
+$myGatewayClient->setProjectName("xxxx");
+$myGatewayClient->setProjectHolder("xxxx");
+$myGatewayClient->setClientToken("xxxxxxxx");
 $myGatewayClient->setApiRequestTyp(myGatewayClient::API_REQUEST_CURL);
 $smsId = $myGatewayClient->sendSMS("xxxxxxxxxx", "Hallo ich bin ein Test",3600);
 } catch (lkdev\myGateway\myGatewayClientException $ex){

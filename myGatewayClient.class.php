@@ -30,7 +30,7 @@ namespace lkdev\myGateway;
  * A class that provieds Functions for the work with myGateway
  *
  * @author Lukas Kämmerling
- * @version 1.0.0
+ * @version 1.0.1
  * @todo provide Passiv Auth functions
  */
 class myGatewayClient {
@@ -195,7 +195,7 @@ class myGatewayClient {
      * @return boolean
      */
     public function sendSMS($SmsRecipient, $SmsSendText, $SmsExpiration = 172800) {
-        $data = array("action" => "add", "sms_recipient" => $SmsRecipient, "sms_sendtext" => $SmsSendText, "sms_expiration" => (time() +$SmsExpiration));
+        $data = array("action" => "add", "sms_recipient" => $SmsRecipient, "sms_sendtext" => $SmsSendText, "sms_expiration" => (time() + $SmsExpiration));
         try {
             $this->sendRequest($data);
             return $this->checkApiReturn();
@@ -255,20 +255,21 @@ class myGatewayClient {
         }
         return false;
     }
+
     /**
      * Checks the POST Answer
      * @return \stdClass
      * @throws myGatewayClientException
      */
-    public function checkPostAnswer(){
-        if($_SERVER['HTTP_USER_AGENT'] === "SMS Gateway Client (".$this->getProjectHolder().";".$this->getProjectName()."')"){
+    public function checkPostAnswer() {
+        if ($_SERVER['HTTP_USER_AGENT'] === "SMS Gateway Client (" . $this->getProjectHolder() . ";" . $this->getProjectName() . "')") {
             $return = new \stdClass();
             $return->status = $_POST['status'];
             $return->id = $_POST['id'];
             return $return;
         } else {
-       
-            throw new myGatewayClientException("Post Answer Auth(Passiv) wasn't successfuly");
+
+            throw new myGatewayClientException("Post Answer Auth(Passiv) wasn't successfully");
         }
     }
 
@@ -316,40 +317,62 @@ class myGatewayClient {
      * Sends a Request with CURL
      * @param array $data
      * @return boolean
+     * @throws myGatewayClientException
      */
     private function sendCurlRequest(array $data) {
-        $data["client_token"] = $this->getClientToken();
-        $data["client_alias"] = $this->getProjectName();
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, self::Api_Url);
-        curl_setopt($ch, CURLOPT_POST, count($data));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $this->Api_Return = json_decode(curl_exec($ch));
-        curl_close($ch);
-        return true;
+        if (!empty($this->getClientToken())) {
+            $data["client_token"] = $this->getClientToken();
+        } else {
+            throw new myGatewayClientException("Please set Client Token!");
+        }
+        if (!empty($this->getProjectName())) {
+            $data["client_alias"] = $this->getProjectName();
+        } else {
+            throw new myGatewayClientException("Please Set Projektname!!");
+        }
+        if (empty($this->getClientToken()) == false && empty($this->getProjectName()) == false) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, self::Api_Url);
+            curl_setopt($ch, CURLOPT_POST, count($data));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $this->Api_Return = json_decode(curl_exec($ch));
+            curl_close($ch);
+            return true;
+        }
     }
 
     /**
      * Sends a Request with file_get_contents
      * @param array $data
      * @return boolean
+     * @throws myGatewayClientException
      */
     private function sendFGCRequest(array $data) {
-        $data["client_token"] = $this->getClientToken();
-        $data["client_alias"] = $this->getProjectName();
-        $fgc_data = http_build_query($data);
-        $options = array("http" =>
-            array(
-                "method" => "POST",
-                'header' => "Content-type: application/x-www-form-urlencoded\r\n"
-                . "Content-Length: " . strlen($fgc_data) . "\r\n",
-                "content" => $fgc_data,
-            )
-        );
-        $context = stream_context_create($options);
-        $this->Api_Return = json_decode(file_get_contents(self::Api_Url, false, $context));
-        return true;
+        if (!empty($this->getClientToken())) {
+            $data["client_token"] = $this->getClientToken();
+        } else {
+            throw new myGatewayClientException("Please set Client Token!");
+        }
+        if (!empty($this->getProjectName())) {
+            $data["client_alias"] = $this->getProjectName();
+        } else {
+            throw new myGatewayClientException("Please Set Projektname!!");
+        }
+        if (empty($this->getClientToken()) == false && empty($this->getProjectName()) == false) {
+            $fgc_data = http_build_query($data);
+            $options = array("http" =>
+                array(
+                    "method" => "POST",
+                    'header' => "Content-type: application/x-www-form-urlencoded\r\n"
+                    . "Content-Length: " . strlen($fgc_data) . "\r\n",
+                    "content" => $fgc_data,
+                )
+            );
+            $context = stream_context_create($options);
+            $this->Api_Return = json_decode(file_get_contents(self::Api_Url, false, $context));
+            return true;
+        }
     }
 
     /**

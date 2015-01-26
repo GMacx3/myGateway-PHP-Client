@@ -28,7 +28,7 @@ require_once 'myGatewayClient.class.php';
 use lkdev\myGateway\myGatewayClient as myGatewayClient;
 
 $myGatewayClient = new myGatewayClient();
-$myGatewayClient->setProjectName("AB");
-$myGatewayClient->setProjectHolder("Lukas Kä");
-$myGatewayClient->setClientToken("jzwvvncp71e77hfldq87wmrjt6zb9ckfeawyv4mn");
+$myGatewayClient->setProjectName("xxxxx");
+$myGatewayClient->setProjectHolder("xxxx");
+$myGatewayClient->setClientToken("xxxxx");
 $answer = $myGatewayClient->checkPostAnswer();
